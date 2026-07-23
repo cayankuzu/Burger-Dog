@@ -5,6 +5,9 @@ const overlayTitle = document.querySelector("#overlayTitle");
 const overlayText = document.querySelector("#overlayText");
 const startButton = document.querySelector("#startButton");
 const soundButton = document.querySelector("#soundButton");
+const helpButton = document.querySelector("#helpButton");
+const helpMarkup = overlayText.innerHTML;
+const helpTitle = overlayTitle.textContent;
 const ASSET = "burger_dog_assets/";
 
 const images = {
@@ -25,6 +28,9 @@ let width = 800;
 let height = 600;
 let scale = 1;
 let running = false;
+let hasStarted = false;
+let roundFinished = false;
+let overlayMode = "start";
 let soundEnabled = true;
 let lastTime = 0;
 let score = 0;
@@ -91,6 +97,7 @@ function resetGame() {
   burgersEaten = 0;
   lives = 3;
   boost = 100;
+  roundFinished = false;
   resetDog();
   resetBurger();
 }
@@ -100,6 +107,8 @@ function startGame() {
   overlay.classList.remove("is-visible");
   startButton.textContent = "Tekrar oyna";
   running = true;
+  hasStarted = true;
+  overlayMode = "resume";
   lastTime = performance.now();
   if (soundEnabled) sounds.music.play().catch(() => {});
   requestAnimationFrame(loop);
@@ -107,10 +116,37 @@ function startGame() {
 
 function gameOver() {
   running = false;
+  hasStarted = false;
+  roundFinished = true;
+  overlayMode = "restart";
   sounds.music.pause();
   overlayTitle.textContent = `Final skor: ${score.toLocaleString("tr-TR")}`;
   overlayText.textContent = `${burgersEaten} burger yakaladın. Rekorunu geliştirmek için yeniden başlayabilirsin.`;
   overlay.classList.add("is-visible");
+}
+
+function showHelp() {
+  const canResume = hasStarted && !roundFinished;
+  running = false;
+  keys.clear();
+  sounds.music.pause();
+  overlayMode = canResume ? "resume" : "start";
+  overlayTitle.textContent = helpTitle;
+  overlayText.innerHTML = helpMarkup;
+  startButton.textContent = canResume ? "Oyuna dön" : "Oyuna başla";
+  overlay.classList.add("is-visible");
+}
+
+function handleOverlayAction() {
+  if (overlayMode === "resume") {
+    overlay.classList.remove("is-visible");
+    running = true;
+    lastTime = performance.now();
+    if (soundEnabled) sounds.music.play().catch(() => {});
+    requestAnimationFrame(loop);
+    return;
+  }
+  startGame();
 }
 
 function update(dt) {
@@ -247,7 +283,8 @@ document.querySelectorAll("[data-key]").forEach((button) => {
   button.addEventListener("lostpointercapture", release);
 });
 
-startButton.addEventListener("click", startGame);
+startButton.addEventListener("click", handleOverlayAction);
+helpButton.addEventListener("click", showHelp);
 soundButton.addEventListener("click", () => {
   soundEnabled = !soundEnabled;
   soundButton.textContent = soundEnabled ? "Ses açık" : "Ses kapalı";

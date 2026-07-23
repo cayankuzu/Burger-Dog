@@ -42,6 +42,12 @@ button { font: inherit; }
   gap: 20px;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
 .eyebrow {
   color: #ad927d;
   font-size: .67rem;
@@ -60,6 +66,7 @@ h1 {
 }
 
 .sound-button,
+.help-button,
 .controls button,
 #startButton {
   min-height: 48px;
@@ -71,7 +78,13 @@ h1 {
   touch-action: manipulation;
 }
 
-.sound-button { padding: 0 18px; white-space: nowrap; }
+.sound-button,
+.help-button { padding: 0 18px; white-space: nowrap; }
+
+.help-button {
+  border-color: var(--orange);
+  color: var(--orange);
+}
 
 .stage-card {
   position: relative;
@@ -104,6 +117,8 @@ canvas {
 
 .overlay-panel {
   width: min(470px, 100%);
+  max-height: calc(100% - 8px);
+  overflow-y: auto;
   padding: clamp(24px, 6vw, 48px);
   border: 1px solid rgba(255, 238, 211, .17);
   background: rgba(18, 10, 5, .92);
@@ -131,6 +146,18 @@ canvas {
   font-size: .9rem;
   line-height: 1.5;
 }
+
+.overlay-text {
+  margin: 14px auto 22px;
+  color: #c1aa98;
+  font-size: .9rem;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.overlay-text p { margin: 0 0 12px; }
+.overlay-text ul { margin: 0; padding-left: 20px; }
+.overlay-text li + li { margin-top: 7px; }
 
 #startButton {
   width: 100%;
@@ -201,14 +228,24 @@ canvas {
 @media (max-width: 560px) {
   .game-shell { width: calc(100% - 18px); }
   .game-header { padding-bottom: 11px; align-items: center; }
-  .sound-button { min-height: 42px; padding: 0 13px; font-size: .76rem; }
+  .sound-button,
+  .help-button { min-height: 42px; padding: 0 13px; font-size: .76rem; }
   .stage-card { border-radius: 16px; }
   canvas { min-height: min(56svh, 520px); aspect-ratio: auto; }
 }
 
 @media (max-height: 560px) and (orientation: landscape) {
   .game-shell { width: min(100% - 18px, 900px); padding: 8px 0; }
-  .game-header { display: none; }
+  .game-header {
+    position: absolute;
+    z-index: 5;
+    top: 14px;
+    right: 18px;
+    display: flex;
+    padding: 0;
+  }
+  .game-header > div:first-child,
+  .sound-button { display: none; }
   canvas { height: calc(100svh - 18px); aspect-ratio: auto; }
   .controls {
     position: absolute;
